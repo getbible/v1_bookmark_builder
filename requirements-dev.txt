@@ -1,0 +1,4 @@
+# Development and CI tooling. The builder itself needs only the Python standard library.
+ruff==0.16.5
+mypy==2.3.1
+jsonschema==4.26.0

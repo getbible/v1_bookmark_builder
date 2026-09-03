@@ -1,0 +1,70 @@
+name: "Unit Tests"
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - "agent/**"
+      - "claude/**"
+  pull_request:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    name: "Checks (Python ${{ matrix.python-version }})"
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.12", "3.13"]
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install development requirements
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Run checks
+        run: bash scripts/run-checks.sh
+
+  publish-dry-run:
+    name: "Publication dry run"
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Render into a throwaway downstream repository
+        run: |
+          git config --global user.name "CI"
+          git config --global user.email "ci@example.invalid"
+          git init --quiet --initial-branch=main "$RUNNER_TEMP/downstream"
+          git -C "$RUNNER_TEMP/downstream" commit --quiet --allow-empty -m "Initial commit"
+          ./run.sh --target="$RUNNER_TEMP/downstream" --dry-run
+          test -f "$RUNNER_TEMP/downstream/v1/index.json"
+          python3 -m json.tool "$RUNNER_TEMP/downstream/v1/index.json"
