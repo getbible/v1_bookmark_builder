@@ -1,0 +1,42 @@
+name: "Build API files"
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+concurrency:
+  group: getbible-v1-bookmarks-publication
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Setup gitHub User Details
+        uses: octoleo/git-user@v2
+        with:
+          gpg-key: ${{ secrets.GETBIBLE_GPG_KEY }}
+          gpg-user: ${{ secrets.GETBIBLE_GPG_USER }}
+          ssh-key: ${{ secrets.GETBIBLE_SSH_KEY }}
+          ssh-pub: ${{ secrets.GETBIBLE_SSH_PUB }}
+          git-user: ${{ secrets.GETBIBLE_GIT_USER }}
+          git-email: ${{ secrets.GETBIBLE_GIT_EMAIL }}
+
+      - name: Build the bookmarks API files and update the downstream repository
+        env:
+          BOOKMARKS_REPO: ${{ secrets.GETBIBLE_BOOKMARKS_REPO }}
+          BOOKMARKS_BRANCH: ${{ secrets.GETBIBLE_BOOKMARKS_BRANCH }}
+        run: |
+          ./run.sh --pull --push
