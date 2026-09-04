@@ -19,12 +19,27 @@ the content changed.
 
 ## In memory of Brother Jaco van der Merwe
 
-The catalogue began as the personal bookmarks of Brother Jaco van der Merwe,
-the first contributor to this project. Brother Jaco served for many years in
-mission work in Namibia and was part of the True Christian Church
-brotherhood. He passed on to glory several years ago. The topics and verse
-links he gathered over a lifetime of study form the foundation of this
-repository, and everything added since is built on his work.
+The catalog and bookmarks were originally created from notes gathered by Brother Jaco van der Merwe.
+
+Brother Jaco served faithfully for many years in mission work in Namibia and was part of the True Christian Church Brotherhood. Several years ago, he passed on to glory, leaving behind a testimony of faithful service and a sincere desire to point people to the Word of God.
+
+The material that eventually became the catalog began very simply. Brother Jaco regularly spoke with people he met in the course of everyday life and mission work. Because of his beard and his manner of dress, people would sometimes make remarks or ask him questions. He saw these encounters as opportunities to speak with them about the Lord and the Scriptures.
+
+As conversations developed, people would often ask questions about particular Bible subjects, Christian practices, or matters of faith. Brother Jaco began collecting Bible verses on his phone according to the different topics people asked him about. His purpose was not merely to give his own opinion, but to be able to turn directly to the Scriptures and show people what the Bible had to say.
+
+Over time, this collection grew. It became, in a very practical sense, the working notes of an evangelist—Bible passages gathered through real conversations with people on the street and through the questions they sincerely wanted answered. As different subjects arose, Brother Jaco collected the verses that the Lord brought to his attention so that he could give people an answer from the Word of God.
+
+This was especially important to him because he did not want people simply to dismiss what he said as his personal belief or opinion. Instead, he wanted them to be able to read the verses for themselves and see that the answers being given were grounded in Scripture.
+
+One day, Brother Jaco's son (Llewellyn van der Merwe) saw the collection of topics and Bible references on his father's phone. Recognizing the usefulness of what had been gathered, he asked whether Brother Jaco would be willing to contribute those notes. From that simple beginning, the catalog was started.
+
+The catalog of bookmakrs grew out of years of personal evangelism, conversations, questions, and opportunities to share the Gospel. Its topics reflect the kinds of questions ordinary people asked, and its verse references reflect Brother Jaco's desire to direct those people away from human opinion and toward the authority of the Bible.
+
+The bookmarks and catalog remain a testimony to that purpose: to provide a practical Bible-help tool through which a person can quickly find Scriptures related to a particular subject and use the Word of God to answer sincere questions.
+
+They are, in many ways, the collected notes of an evangelist—formed through years of meeting people, listening to their questions, and searching the Scriptures for answers that could be shared with them. Brother Jaco's desire was that people would not simply hear what a man thought, but that they would be shown what the Bible says and be encouraged to search the Scriptures for themselves.
+
+Today this catalog of bookmarks are expanded by his children and grand children.
 
 ## How it fits together
 
@@ -116,16 +131,15 @@ in [docs/PUBLISHING.md](docs/PUBLISHING.md).
 
 ## Provenance
 
-Beyond Brother Jaco's bookmarks, the catalogue as first committed here was
-imported from the getBible robot's reviewed global bookmark sources: 61
-topics, 2,155 verse links and 53 locales of translated names, with ids,
-colours and coordinates unchanged. The robot also carries sixteen locales it
-fills from another language's catalogue (its interface fallback policy, for
-example Cherokee shown in English); those are not translations, and fifteen
-of them were not imported. The sixteenth, `ppk`, is the language code for
-Uma, under which the robot filed its Indonesian catalogue; it is published
-under `id`. The import is reproducible with
-`scripts/import_from_robot.py`.
+The catalogue as first committed here was imported from the getBible robot's
+reviewed global bookmark sources: 61 topics, 2,155 verse links and 53 locales
+of translated names, with ids, colours and coordinates unchanged. The robot
+also carries sixteen locales it fills from another language's catalogue (its
+interface fallback policy, for example Cherokee shown in English); those are
+not translations, and fifteen of them were not imported. The sixteenth,
+`ppk`, is the language code for Uma, under which the robot filed its
+Indonesian catalogue; it is published under `id`. The import is reproducible
+with `scripts/import_from_robot.py`.
 
 ## License
 
