@@ -95,4 +95,7 @@ followed by `build --check` against it (proving determinism), and the unit
 tests. The tests cover the validators, every mutation, source round trips,
 schema conformance of every generated document, the version logic and the
 command line. CI additionally performs a publication dry run of `run.sh`
-against a throwaway git repository.
+against a throwaway git repository. The tests import the flat modules by
+name through a bootstrap in `tests/__init__.py`, so unittest discovery must
+use the repository root as its top level: `python -m unittest` from the
+root, or `discover -s tests -t .` as the script does.

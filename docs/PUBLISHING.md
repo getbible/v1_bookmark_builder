@@ -163,7 +163,7 @@ it reached, so an SSH error means the GPG secrets were already accepted.
 | `SSH private key is invalid or unreadable.` | `GETBIBLE_SSH_KEY` is not the complete multi-line private key file: Windows line endings, leading blank line or indentation, one line, base64, truncated, `.ppk`, passphrase-protected, or the public key | Set the secret from the private key file written by `ssh-keygen -N ""` (see above), then re-run |
 | `Provided SSH public key does not match the provided private key.` | `GETBIBLE_SSH_PUB` is not the public key of `GETBIBLE_SSH_KEY` | Set it from the `.pub` file of the same key pair |
 | `Permission denied (publickey)` or `ERROR: Repository not found` while cloning | The SSH key is not registered as a deploy key on the downstream repository, or has no write access | Add `GETBIBLE_SSH_PUB` as a deploy key with write access on `getbible/bookmarks` |
-| `error: <file>: <rule>` before anything is cloned | The sources violate a rule | Fix the file; the message names the file and the rule ([DATA.md](DATA.md)) |
+| `error: <file>.<field> <rule>` before anything is cloned, for example `error: links/grace.json.verses must be strictly ascending without duplicates.` | The sources violate a rule | Fix the file; the message names the file and the rule ([DATA.md](DATA.md)) |
 | `refusing to reset the published version` | The downstream `v1/index.json` exists but is damaged | Restore it from the downstream history, then re-run |
 | The run succeeds but prints `Nothing to commit` | The content did not change | Expected; only content changes are published |
 | `! [rejected]` on push | Someone pushed to the downstream branch during the run | Re-run the workflow; `--pull` resets the checkout first |

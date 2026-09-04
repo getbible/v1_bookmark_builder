@@ -74,9 +74,9 @@ Accept: application/vnd.github+json
 X-GitHub-Api-Version: 2022-11-28
 ```
 
-The token owner becomes the committer. Pass an `author` object on writes so
-the commit names the person behind the change, for example the contributor
-whose bookmark is being shared:
+On the contents API the token owner becomes the committer. Pass an `author`
+object on writes so the commit names the person behind the change, for
+example the contributor whose bookmark is being shared:
 
 ```json
 "author": { "name": "Jane Contributor", "email": "jane@example.org" }
@@ -93,7 +93,12 @@ GET /repos/getbible/v1_bookmark_builder/contents/data/links/grace.json?ref=main
 ```
 
 The response carries the file as base64 in `content` and its blob `sha`.
-Decode the content, and keep the `sha`: every update must quote it.
+Decode the content, and keep the `sha`: every update must quote it. For a
+file above 1 MB the contents endpoint returns an empty `content` with
+`encoding: "none"`; read such a file through
+`GET /repos/getbible/v1_bookmark_builder/git/blobs/<sha>` instead, which
+serves up to 100 MB. A links file at the 100,000-verse limit is roughly
+1.5 MB.
 
 ### Update or create one file (contents API)
 
@@ -113,10 +118,14 @@ PUT /repos/getbible/v1_bookmark_builder/contents/data/links/grace.json
 
 - `200` means updated, `201` means created (omit `sha` to create a file that
   does not exist yet).
-- `409 Conflict` means the file changed since it was read: read it again,
-  reapply the change to the fresh content, and retry. Two applications
-  editing different files never conflict; two editing the same file resolve
-  it this way.
+- `409 Conflict` means either that the file changed since it was read or
+  that another commit landed on the branch while GitHub was processing the
+  request. In both cases read the file again, reapply the change to the
+  fresh content, and retry. Every contents-API write is its own commit on
+  the branch, and GitHub documents that parallel writes to one branch
+  conflict even when they touch different files, so an application must
+  issue its contents-API writes one at a time and use the Git Data route
+  below for a batch.
 - `422` means the request itself is malformed, most often a missing `sha`
   for an existing file or a bad base64 body.
 
@@ -179,15 +188,19 @@ Make those one commit:
    ```http
    POST /repos/getbible/v1_bookmark_builder/git/commits
    { "message": "Add topic new-topic", "tree": "<new tree>", "parents": ["<head sha>"],
-     "author": { "name": "Jane Contributor", "email": "jane@example.org" } }
+     "author": { "name": "Jane Contributor", "email": "jane@example.org" },
+     "committer": { "name": "getBible App", "email": "app@getbible.net" } }
 
    PATCH /repos/getbible/v1_bookmark_builder/git/refs/heads/main
    { "sha": "<new commit>" }
    ```
 
-   The ref update is a fast-forward. A `422` here means the branch moved
-   since step 1: start again from step 1. Nothing was published in between,
-   because the commit is unreachable until the ref moves.
+   Unlike the contents API, this endpoint copies `author` into `committer`
+   when `committer` is omitted, so pass the application's identity
+   explicitly to keep it in the history. The ref update is a fast-forward.
+   A `422` here means the branch moved since step 1: start again from
+   step 1. Nothing was published in between, because the commit is
+   unreachable until the ref moves.
 
 ### Through a pull request instead of a direct write
 
@@ -225,28 +238,50 @@ verse. If the run fails instead, the Actions tab of this repository shows
 the validation error; the sources are still in the state the application
 left them, so the fix is another write.
 
+The two worked examples write with `json.dumps(..., indent=2)`, which puts
+each coordinate of a verse on its own line. The builder accepts that, but
+it is not the canonical layout
+([DATA.md](DATA.md#checking-and-normalising)): the file's diff grows by
+five lines per verse, and the next `normalize` run rewrites the file once.
+An application that writes often should render one verse per line.
+
 ### Worked example: add a verse with `curl`
 
 ```bash
+set -euo pipefail
 REPO=getbible/v1_bookmark_builder
 FILE=data/links/grace.json
-read -r SHA CONTENT < <(curl -s -H "Authorization: Bearer $TOKEN" -H "Accept: application/vnd.github+json" \
-  "https://api.github.com/repos/$REPO/contents/$FILE?ref=main" | python3 -c '
-import json,sys; d=json.load(sys.stdin); print(d["sha"], d["content"].replace("\n",""))')
+API="https://api.github.com/repos/$REPO/contents/$FILE"
+AUTH=(-H "Authorization: Bearer $TOKEN" -H "Accept: application/vnd.github+json"
+      -H "X-GitHub-Api-Version: 2022-11-28")
 
-NEW=$(printf '%s' "$CONTENT" | base64 -d | python3 -c '
-import json,sys
-doc = json.load(sys.stdin)
+curl -sS --fail-with-body "${AUTH[@]}" "$API?ref=main" > current.json
+
+python3 - current.json > body.json <<'PY'
+import base64, json, sys
+current = json.load(open(sys.argv[1]))
+doc = json.loads(base64.b64decode(current["content"]))
 verse = [43, 3, 16]
 if verse not in doc["verses"]:
     doc["verses"].append(verse)
     doc["verses"].sort()
-print(json.dumps(doc, ensure_ascii=False, indent=2))' | base64 | tr -d '\n')
+content = json.dumps(doc, ensure_ascii=False, indent=2) + "\n"
+print(json.dumps({
+    "message": "Add John 3:16 to grace",
+    "content": base64.b64encode(content.encode()).decode(),
+    "sha": current["sha"],
+    "branch": "main",
+    "author": {"name": "Jane Contributor", "email": "jane@example.org"},
+}))
+PY
 
-curl -s -X PUT -H "Authorization: Bearer $TOKEN" -H "Accept: application/vnd.github+json" \
-  "https://api.github.com/repos/$REPO/contents/$FILE" \
-  -d "{\"message\":\"Add John 3:16 to grace\",\"content\":\"$NEW\",\"sha\":\"$SHA\",\"branch\":\"main\"}"
+curl -sS --fail-with-body "${AUTH[@]}" -X PUT "$API" --data-binary @body.json
 ```
+
+`--fail-with-body` makes `curl` exit non-zero on any error status and print
+the response, so a `409` stops the script; running it again reads the fresh
+file and retries. The body goes through a file rather than a command line
+argument, so a large links file is not limited by the shell's argument size.
 
 ### Worked example: create a topic atomically in Python
 
@@ -276,7 +311,7 @@ def read_text(path, ref):
     return base64.b64decode(document["content"]).decode()
 
 
-def create_topic(topic, verses, author):
+def create_topic(topic, verses, author, committer):
     for _ in range(3):
         head = call("GET", "/git/ref/heads/main")["object"]["sha"]
         base_tree = call("GET", f"/git/commits/{head}")["tree"]["sha"]
@@ -322,6 +357,7 @@ def create_topic(topic, verses, author):
                 "tree": tree,
                 "parents": [head],
                 "author": author,
+                "committer": committer,
             },
         )["sha"]
         try:
@@ -337,6 +373,7 @@ create_topic(
     {"id": "mercy", "name": "Mercy", "color": "#fde68a", "aliases": [], "default": False},
     [[19, 23, 6], [49, 2, 4]],
     {"name": "Jane Contributor", "email": "jane@example.org"},
+    {"name": "getBible App", "email": "app@getbible.net"},
 )
 ```
 
