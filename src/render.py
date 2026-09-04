@@ -24,10 +24,10 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from . import SCHEMA_VERSION
-from .canon import BOOK_CHAPTER_COUNTS, BOOK_COUNT
-from .jsonfmt import dump_bytes
-from .model import ENGLISH_LOCALE, Catalog, CatalogError, Topic
+from canon import BOOK_CHAPTER_COUNTS, BOOK_COUNT
+from catalog import ENGLISH_LOCALE, Catalog, CatalogError, Topic
+from jsonfmt import dump_bytes
+from meta import SCHEMA_VERSION
 
 API_VERSION = "v1"
 RESOURCES: Mapping[str, str] = {

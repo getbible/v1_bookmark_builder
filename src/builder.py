@@ -1,4 +1,9 @@
-"""Command line interface: validate, normalize and build the sources, import robot bundles."""
+"""Command line entry point: validate, normalize and build the sources, import robot bundles.
+
+Run from the repository root as ``python3 src/builder.py <command>``; the
+script directory is on ``sys.path`` so the flat modules beside it import by
+name, the same way the other getBible builders are laid out.
+"""
 
 from __future__ import annotations
 
@@ -8,8 +13,10 @@ import logging
 import sys
 from pathlib import Path
 
-from . import __version__
-from .build import (
+from bundle import apply_bundle
+from catalog import CatalogError
+from meta import VERSION
+from render import (
     RESOURCES,
     catalog_checksum,
     catalog_version,
@@ -18,9 +25,7 @@ from .build import (
     stale_paths,
     write_tree,
 )
-from .bundle import apply_bundle
-from .model import CatalogError
-from .sources import load_catalog, save_catalog
+from sources import load_catalog, save_catalog
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -41,10 +46,10 @@ def main(argv: list[str] | None = None) -> int:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="bookmark-builder",
+        prog="python3 src/builder.py",
         description="Validate the getBible bookmark sources and render the static v1 JSON API.",
     )
-    parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
+    parser.add_argument("--version", action="version", version=f"%(prog)s {VERSION}")
     parser.add_argument(
         "--data",
         type=Path,
@@ -153,3 +158,7 @@ def _import_bundle(options: argparse.Namespace) -> int:
 
 
 __all__ = ["build_parser", "main"]
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

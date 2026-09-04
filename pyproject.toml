@@ -1,35 +1,18 @@
-[build-system]
-requires = ["setuptools>=69"]
-build-backend = "setuptools.build_meta"
-
-[project]
-name = "getbible-bookmark-builder"
-version = "1.0.0"
-description = "Builds the getBible bookmarks static JSON API (v1) from the canonical topic sources"
-readme = "README.md"
-license = { file = "LICENSE" }
-requires-python = ">=3.12"
-dependencies = []
-classifiers = [
-    "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: Apache Software License",
-    "Operating System :: OS Independent",
-]
-
-[project.scripts]
-bookmark-builder = "bookmark_builder.cli:main"
-
-[tool.setuptools.packages.find]
-include = ["bookmark_builder*"]
+# Tool configuration only. The builder is a set of flat modules under src/ run
+# as scripts (python3 src/builder.py); it is not packaged or installed.
 
 [tool.ruff]
 line-length = 100
 target-version = "py312"
+src = ["src", "scripts", "tests"]
 extend-exclude = ["data", "bookmarks"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "B", "UP", "S", "N", "RUF", "SIM", "PL"]
 ignore = ["PLR0913", "PLR0912", "PLR0915", "PLR2004", "S101", "S603", "S607", "RUF012", "E501", "SIM108", "PLR0911", "PLW2901", "PLR1714"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["builder", "bundle", "canon", "catalog", "jsonfmt", "meta", "render", "sources"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["S", "PL", "B", "RUF"]
@@ -39,7 +22,8 @@ ignore = ["PLR0913", "PLR0912", "PLR0915", "PLR2004", "S101", "S603", "S607", "R
 python_version = "3.12"
 strict = true
 warn_unreachable = true
-files = ["bookmark_builder", "scripts", "tests"]
+mypy_path = "src"
+files = ["src", "scripts", "tests"]
 
 [[tool.mypy.overrides]]
 module = ["jsonschema", "jsonschema.*", "referencing", "referencing.*"]

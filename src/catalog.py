@@ -18,7 +18,7 @@ from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field, replace
 from typing import Any
 
-from .canon import BOOK_CHAPTER_COUNTS, BOOK_COUNT, MAX_VERSE, is_canonical_coordinate
+from canon import BOOK_CHAPTER_COUNTS, BOOK_COUNT, MAX_VERSE, is_canonical_coordinate
 
 MAX_TOPICS = 1000
 MAX_LINKS = 100_000

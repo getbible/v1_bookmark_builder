@@ -7,8 +7,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from bookmark_builder.cli import main
-from bookmark_builder.sources import load_catalog, save_catalog
+from builder import main
+from sources import load_catalog, save_catalog
 from tests.helpers import sample_catalog
 
 

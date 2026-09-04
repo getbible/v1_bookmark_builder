@@ -19,8 +19,8 @@ Usage::
     python3 scripts/import_from_robot.py /path/to/robot
 
 The script is deliberately standalone (no package import) so it can run from
-any checkout; the resulting files are then validated by ``bookmark-builder
-validate`` and rendered by ``bookmark-builder build``.
+any checkout; the resulting files are then validated by ``python3 src/builder.py
+validate`` and rendered by ``python3 src/builder.py build``.
 """
 
 from __future__ import annotations
@@ -220,8 +220,8 @@ def main(argv: list[str]) -> int:
 
 def _normalize_with_package() -> None:
     """Re-render through the package writer so the files match ``save_catalog`` byte for byte."""
-    sys.path.insert(0, str(REPOSITORY_ROOT))
-    from bookmark_builder.sources import load_catalog, save_catalog
+    sys.path.insert(0, str(REPOSITORY_ROOT / "src"))
+    from sources import load_catalog, save_catalog
 
     save_catalog(DATA_ROOT, load_catalog(DATA_ROOT))
 

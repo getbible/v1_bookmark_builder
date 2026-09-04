@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import unittest
 
-from bookmark_builder.jsonfmt import canonical_bytes, dump_bytes, dumps
+from jsonfmt import canonical_bytes, dump_bytes, dumps
 
 
 class JsonFormatTests(unittest.TestCase):

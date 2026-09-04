@@ -43,7 +43,7 @@ cd "$(dirname "$0")"
 log() { printf '[bookmark-builder] %s\n' "$*"; }
 
 # 1. Validate the sources before touching the downstream checkout.
-python3 -m bookmark_builder validate
+python3 src/builder.py validate
 
 # 2. Make sure the downstream checkout exists and is current.
 if [ ! -d "$TARGET/.git" ]; then
@@ -59,7 +59,7 @@ elif [ "$PULL" = 1 ]; then
 fi
 
 # 3. Render v1/ in place. The previous index.json decides the catalogue version.
-python3 -m bookmark_builder build --output "$TARGET/v1"
+python3 src/builder.py build --output "$TARGET/v1"
 
 # 4. Commit and push only when something actually changed.
 git -C "$TARGET" add -A -- v1

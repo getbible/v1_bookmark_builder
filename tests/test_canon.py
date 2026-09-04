@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-from bookmark_builder.canon import (
+from canon import (
     BOOK_CHAPTER_COUNTS,
     BOOK_COUNT,
     CHAPTER_COUNT,
