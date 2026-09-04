@@ -1,4 +1,11 @@
-"""Test package: makes the flat modules under src/ importable by name."""
+"""Test package: makes the flat modules under src/ importable by name.
+
+Discovery must use the repository root as the top-level directory, as
+``python -m unittest`` run from the root or ``scripts/run-checks.sh`` does,
+so that the test modules are imported as ``tests.test_*`` and this file
+runs. ``python -m unittest discover -s tests`` without ``-t .`` imports them
+as bare modules and never puts src/ on the path.
+"""
 
 from __future__ import annotations
 

@@ -34,8 +34,11 @@ the same validation; a violation fails them.
 
 Loads the sources and writes them back in the builder's canonical formatting:
 two-space indented objects, one verse triple per line, topics sorted by id,
-locale entries sorted by topic id, a trailing newline, and an empty links
-file for any topic that has none. It reports which files it rewrote:
+aliases sorted, lowercase colours, a trailing newline, and an empty links
+file for any topic that has none. It loads the sources with the same
+validation as `validate`, so a file that breaks a rule (for example unsorted
+keys in a locale file) is reported, not rewritten. It reports which files it
+rewrote:
 
 ```text
 Normalized 2 source file(s): links/grace.json, topics.json

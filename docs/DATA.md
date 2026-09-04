@@ -29,9 +29,9 @@ page is meant to be copied into their validators.
 |---|---|
 | `schema_version` | Always `1` |
 | `id` | Lowercase slug: letters, digits and single hyphens, no leading or trailing hyphen, 1 to 80 characters. Unique. Stable: consumers store it, so never rename an id; create a new topic instead |
-| `name` | English display name, 1 to 80 characters, letters, digits, single spaces and `& ' ( ) : ? -`, starting with a letter or digit and ending with a letter, digit or `)`. Unique across every name and alias of every topic, compared case-insensitively |
-| `color` | Six-digit lowercase hex colour, `#rrggbb` |
-| `aliases` | Other English wordings under the same rule as `name`, sorted, at most 20, never repeating the name or each other case-insensitively. When a topic is renamed the previous wording goes here so stored references keep resolving |
+| `name` | English display name, 2 to 80 characters, letters, digits, single spaces and `& ' ( ) : ? -`, starting with a letter or digit and ending with a letter, digit or `)`. Unique across every name and alias of every topic, compared case-insensitively |
+| `color` | Six-digit hex colour, `#rrggbb`. Uppercase digits are accepted and lowercased on load; `normalize` writes the lowercase form |
+| `aliases` | Other English wordings under the same rule as `name`, at most 20, never equal to the name or to a name or alias of another topic, compared case-insensitively. The builder sorts them and drops case-insensitive repeats on load; `normalize` writes that form. When a topic is renamed the previous wording goes here so stored references keep resolving |
 | `default` | `true` when the topic belongs to the starter set an application shows before the reader has made any choice |
 
 At most 1,000 topics. The builder writes the list sorted by `id`; any order
@@ -87,7 +87,7 @@ One file per locale, named after the locale code:
 
 | Field | Rule |
 |---|---|
-| `locale` | Lowercase BCP 47 style tag: two or three letters, optionally followed by `-` and two to eight letters or digits (`fr`, `zh-hant`, `pt-br`). Must equal the file name. `en` is reserved: English names live in `topics.json` and the builder derives `locales/en.json` from them |
+| `locale` | Lowercase BCP 47 style tag: two or three letters followed by zero or more `-` subtags of two to eight letters or digits, at most 16 characters in total (`fr`, `zh-hant`, `pt-br`). Must equal the file name. `en` is reserved: English names live in `topics.json` and the builder derives `locales/en.json` from them |
 | `name` | Optional English name of the language, up to 80 characters |
 | `topics` | Topic id to translated name, keys sorted. Names are trimmed, NFC normalised, 1 to 120 characters, no control characters. A locale may cover only part of the catalogue; consumers fall back to the English name |
 
@@ -118,9 +118,12 @@ python3 src/builder.py normalize    # rewrite data/ in canonical formatting
 
 The builder accepts any valid JSON with the right keys, but the canonical
 formatting keeps diffs small: two-space indented objects, one verse triple
-per line, sorted topics and locale entries, a trailing newline. Applications
-that render their own JSON should follow it; a maintainer can run
-`normalize` at any time to restore it.
+per line, topics sorted by id, aliases sorted, lowercase colours, a trailing
+newline. Applications that render their own JSON should follow it; a
+maintainer can run `normalize` at any time to restore it. Sorted `topics`
+keys in a locale file and a strictly ascending verse list are validation
+rules, not formatting: `normalize` reports a file that breaks them instead
+of rewriting it.
 
 ## Robot contribution bundles
 
@@ -166,11 +169,12 @@ topics, a links file for an unknown topic) is only checked by `validate`.
 
 ```text
 topic id        ^[a-z0-9]+(?:-[a-z0-9]+)*$            max 80, unique
-english name    ^[A-Za-z0-9][A-Za-z0-9 &'():?-]*[A-Za-z0-9)]$   max 80, no double spaces,
+english name    ^[A-Za-z0-9][A-Za-z0-9 &'():?-]*[A-Za-z0-9)]$   min 2, max 80, no double spaces,
                 unique across all names and aliases, case-insensitive
-colour          ^#[0-9a-f]{6}$
-aliases         same rule as name, sorted, unique, max 20, never equal to the name
-locale code     ^[a-z]{2,3}(?:-[a-z0-9]{2,8})*$        never "en"
+colour          ^#[0-9a-f]{6}$                        uppercase accepted, lowercased on load
+aliases         same rule as name, max 20, never equal to the name or to another
+                topic's name or alias; sorted and deduplicated on load
+locale code     ^[a-z]{2,3}(?:-[a-z0-9]{2,8})*$        max 16, never "en"
 translated name 1..120 chars, trimmed, NFC, no control characters
 verse           [book 1..66, chapter 1..chapters(book), verse 1..2000]
 verses list     strictly ascending, no duplicates

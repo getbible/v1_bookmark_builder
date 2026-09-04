@@ -10,9 +10,9 @@ repository becomes the single source of truth.
 
 Locales that the robot fills from another locale's catalogue (its language
 policy fallbacks, for example Cherokee shown in English or Modern Hebrew shown
-in Ancient Hebrew) are not translations and are skipped. One of them, ``ppk``,
-carries the robot's Indonesian catalogue under a regional tag; it is imported
-under its real language code ``id``.
+in Ancient Hebrew) are not translations and are skipped. One of them, ``ppk``
+(the language code for Uma), carries the robot's Indonesian catalogue; it is
+imported under its real language code ``id``.
 
 Usage::
 

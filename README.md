@@ -121,9 +121,10 @@ imported from the getBible robot's reviewed global bookmark sources: 61
 topics, 2,155 verse links and 53 locales of translated names, with ids,
 colours and coordinates unchanged. The robot also carries sixteen locales it
 fills from another language's catalogue (its interface fallback policy, for
-example Cherokee shown in English); those are not translations and were not
-imported. Its Indonesian catalogue, filed there under the regional tag `ppk`,
-is published under `id`. The import is reproducible with
+example Cherokee shown in English); those are not translations, and fifteen
+of them were not imported. The sixteenth, `ppk`, is the language code for
+Uma, under which the robot filed its Indonesian catalogue; it is published
+under `id`. The import is reproducible with
 `scripts/import_from_robot.py`.
 
 ## License
