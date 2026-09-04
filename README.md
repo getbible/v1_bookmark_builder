@@ -106,7 +106,7 @@ The workflow needs the shared getBible secrets on this repository:
 | Secret | Purpose |
 |---|---|
 | `GETBIBLE_GPG_KEY`, `GETBIBLE_GPG_USER` | Sign the downstream commit |
-| `GETBIBLE_SSH_KEY`, `GETBIBLE_SSH_PUB` | Deploy key with write access on `getbible/bookmarks` |
+| `GETBIBLE_SSH_KEY`, `GETBIBLE_SSH_PUB` | Deploy key with write access on `getbible/bookmarks`; the private key must have no passphrase |
 | `GETBIBLE_GIT_USER`, `GETBIBLE_GIT_EMAIL` | Author and committer of the downstream commit |
 | `GETBIBLE_BOOKMARKS_REPO` (optional) | Downstream repository, default `git@github.com:getbible/bookmarks.git` |
 | `GETBIBLE_BOOKMARKS_BRANCH` (optional) | Downstream branch, default `main` |
