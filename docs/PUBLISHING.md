@@ -42,6 +42,21 @@ workflow applies the getBible defaults when a secret is absent:
 `run.sh` also uses `GITHUB_SHA`, which GitHub Actions provides, to name the
 source commit in the downstream commit message.
 
+`GETBIBLE_GPG_KEY` must be the complete multi-line ASCII-armoured export of
+the private key, exactly as this command writes it:
+
+```bash
+gpg -a --export-secret-keys "builder@getbible.net" > getbible-builder.asc
+gh secret set GETBIBLE_GPG_KEY < getbible-builder.asc      # or paste the whole file in the web form
+```
+
+The action pipes the value straight into `gpg --import`. The import succeeds
+with Windows line endings or surrounding blank lines, but fails when the
+value is the armour collapsed onto one line, a base64 encoding of it, a
+binary export made without `-a`, or a truncated paste. A public key
+(`gpg -a --export`) imports but cannot sign, so the run fails one step later
+with `Could not find a secret GPG signing key`.
+
 Creating the deploy key, if a new one is needed:
 
 ```bash
@@ -125,6 +140,8 @@ Against the real downstream repository from a machine that has push access:
 | Symptom | Cause | Fix |
 |---|---|---|
 | `"--gpg-key" requires a non-empty option argument` in the identity step | A required secret is missing or empty | Add the six required secrets, then re-run the workflow from the Actions tab |
+| `GPG key import failed. Ensure --gpg-key contains a valid ASCII-armored private key` | `GETBIBLE_GPG_KEY` is not a multi-line armoured private key: collapsed onto one line, base64 encoded, exported without `-a`, or truncated | Re-export with `gpg -a --export-secret-keys` and set the secret from the file (see above), then re-run |
+| `Could not find a secret GPG signing key matching …` | `GETBIBLE_GPG_KEY` holds a public key, or `GETBIBLE_GPG_USER` does not match the key's user id | Export the **secret** key and set `GETBIBLE_GPG_USER` to the email or name on the key |
 | `Permission denied (publickey)` or `ERROR: Repository not found` while cloning | The SSH key is not registered as a deploy key on the downstream repository, or has no write access | Add `GETBIBLE_SSH_PUB` as a deploy key with write access on `getbible/bookmarks` |
 | `error: <file>: <rule>` before anything is cloned | The sources violate a rule | Fix the file; the message names the file and the rule ([DATA.md](DATA.md)) |
 | `refusing to reset the published version` | The downstream `v1/index.json` exists but is damaged | Restore it from the downstream history, then re-run |
