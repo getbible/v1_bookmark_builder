@@ -57,14 +57,28 @@ binary export made without `-a`, or a truncated paste. A public key
 (`gpg -a --export`) imports but cannot sign, so the run fails one step later
 with `Could not find a secret GPG signing key`.
 
-Creating the deploy key, if a new one is needed:
+`GETBIBLE_SSH_KEY` must be the complete multi-line private key file of a key
+that has **no passphrase**, and `GETBIBLE_SSH_PUB` the public key line of the
+same pair. Creating the deploy key, if a new one is needed, and setting both
+secrets from the files:
 
 ```bash
 ssh-keygen -t ed25519 -C "getbible-builder" -N "" -f getbible-builder
-# getbible-builder      -> GETBIBLE_SSH_KEY
-# getbible-builder.pub  -> GETBIBLE_SSH_PUB, and Settings → Deploy keys on getbible/bookmarks
-#                          with "Allow write access" ticked
+gh secret set GETBIBLE_SSH_KEY < getbible-builder          # or paste the whole file in the web form
+gh secret set GETBIBLE_SSH_PUB < getbible-builder.pub
+# getbible-builder.pub also goes to Settings → Deploy keys on getbible/bookmarks,
+# with "Allow write access" ticked
 ```
+
+The action writes the private key value to a file, derives the public key
+from it with `ssh-keygen -y`, and checks that the result matches
+`GETBIBLE_SSH_PUB`. This check is stricter than the GPG import: the key is
+rejected when the value has Windows line endings, a blank line or spaces
+before the first line, is collapsed onto one line, base64 encoded,
+truncated, in PuTTY `.ppk` format, or protected by a passphrase (there is
+no terminal to type it into). A missing final newline is fine. The public
+key pasted into the private slot fails the same way; a public key from a
+different pair fails the match check.
 
 ## What the workflow does
 
@@ -137,11 +151,17 @@ Against the real downstream repository from a machine that has push access:
 
 ## Troubleshooting
 
+The identity step checks the secrets in a fixed order: GPG key import, GPG
+signing key lookup, SSH key pair, GitHub host key. A failure names the step
+it reached, so an SSH error means the GPG secrets were already accepted.
+
 | Symptom | Cause | Fix |
 |---|---|---|
 | `"--gpg-key" requires a non-empty option argument` in the identity step | A required secret is missing or empty | Add the six required secrets, then re-run the workflow from the Actions tab |
 | `GPG key import failed. Ensure --gpg-key contains a valid ASCII-armored private key` | `GETBIBLE_GPG_KEY` is not a multi-line armoured private key: collapsed onto one line, base64 encoded, exported without `-a`, or truncated | Re-export with `gpg -a --export-secret-keys` and set the secret from the file (see above), then re-run |
 | `Could not find a secret GPG signing key matching …` | `GETBIBLE_GPG_KEY` holds a public key, or `GETBIBLE_GPG_USER` does not match the key's user id | Export the **secret** key and set `GETBIBLE_GPG_USER` to the email or name on the key |
+| `SSH private key is invalid or unreadable.` | `GETBIBLE_SSH_KEY` is not the complete multi-line private key file: Windows line endings, leading blank line or indentation, one line, base64, truncated, `.ppk`, passphrase-protected, or the public key | Set the secret from the private key file written by `ssh-keygen -N ""` (see above), then re-run |
+| `Provided SSH public key does not match the provided private key.` | `GETBIBLE_SSH_PUB` is not the public key of `GETBIBLE_SSH_KEY` | Set it from the `.pub` file of the same key pair |
 | `Permission denied (publickey)` or `ERROR: Repository not found` while cloning | The SSH key is not registered as a deploy key on the downstream repository, or has no write access | Add `GETBIBLE_SSH_PUB` as a deploy key with write access on `getbible/bookmarks` |
 | `error: <file>: <rule>` before anything is cloned | The sources violate a rule | Fix the file; the message names the file and the rule ([DATA.md](DATA.md)) |
 | `refusing to reset the published version` | The downstream `v1/index.json` exists but is damaged | Restore it from the downstream history, then re-run |
