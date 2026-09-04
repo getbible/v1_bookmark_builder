@@ -4,8 +4,8 @@ import json
 import unittest
 from pathlib import Path
 
-from bookmark_builder.build import render_api
-from bookmark_builder.sources import load_catalog, render_sources
+from render import render_api
+from sources import load_catalog, render_sources
 from tests.helpers import sample_catalog
 
 try:

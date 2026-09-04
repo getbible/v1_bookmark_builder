@@ -36,7 +36,9 @@ jobs:
 
       - name: Build the bookmarks API files and update the downstream repository
         env:
-          BOOKMARKS_REPO: ${{ secrets.GETBIBLE_BOOKMARKS_REPO }}
-          BOOKMARKS_BRANCH: ${{ secrets.GETBIBLE_BOOKMARKS_BRANCH }}
+          # Downstream repository and branch. The secrets are optional overrides;
+          # when they are absent the getBible defaults below apply.
+          BOOKMARKS_REPO: ${{ secrets.GETBIBLE_BOOKMARKS_REPO || 'git@github.com:getbible/bookmarks.git' }}
+          BOOKMARKS_BRANCH: ${{ secrets.GETBIBLE_BOOKMARKS_BRANCH || 'main' }}
         run: |
           ./run.sh --pull --push

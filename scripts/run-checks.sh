@@ -9,10 +9,10 @@ trap 'rm -rf "$SCRATCH"' EXIT
 echo "== ruff format"; "$PYTHON" -m ruff format --check .
 echo "== ruff check";  "$PYTHON" -m ruff check .
 echo "== mypy";        "$PYTHON" -m mypy
-echo "== compile";     "$PYTHON" -m compileall -q bookmark_builder scripts tests
+echo "== compile";     "$PYTHON" -m compileall -q src scripts tests
 echo "== shell";       bash -n run.sh
-echo "== sources";     "$PYTHON" -m bookmark_builder validate
-echo "== build";       "$PYTHON" -m bookmark_builder build --output "$SCRATCH/v1"
-echo "== rebuild";     "$PYTHON" -m bookmark_builder build --output "$SCRATCH/v1" --check
+echo "== sources";     "$PYTHON" src/builder.py validate
+echo "== build";       "$PYTHON" src/builder.py build --output "$SCRATCH/v1"
+echo "== rebuild";     "$PYTHON" src/builder.py build --output "$SCRATCH/v1" --check
 echo "== tests";       "$PYTHON" -m unittest discover -s tests -t . "$@"
 echo "All checks passed."

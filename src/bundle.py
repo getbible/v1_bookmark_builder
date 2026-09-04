@@ -22,8 +22,7 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Any
 
-from . import SCHEMA_VERSION
-from .model import (
+from catalog import (
     Catalog,
     CatalogError,
     Coordinate,
@@ -35,6 +34,7 @@ from .model import (
     fold_name,
     topic_id,
 )
+from meta import SCHEMA_VERSION
 
 MAX_BUNDLE_TOPICS = 200
 MAX_BUNDLE_ASSOCIATIONS = 10_000

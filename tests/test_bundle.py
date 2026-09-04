@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import unittest
 
-from bookmark_builder.bundle import apply_bundle
-from bookmark_builder.model import CatalogError
+from bundle import apply_bundle
+from catalog import CatalogError
 from tests.helpers import sample_catalog
 
 

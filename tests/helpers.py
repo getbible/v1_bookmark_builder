@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from bookmark_builder.model import Catalog
+from catalog import Catalog
 
 
 def sample_catalog() -> Catalog:

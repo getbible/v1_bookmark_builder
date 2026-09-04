@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import unittest
 
-from bookmark_builder import model
-from bookmark_builder.model import Catalog, CatalogError, copy_catalog
+import catalog as model
+from catalog import Catalog, CatalogError, copy_catalog
 from tests.helpers import sample_catalog
 
 

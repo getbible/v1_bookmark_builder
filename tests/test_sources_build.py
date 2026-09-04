@@ -5,7 +5,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from bookmark_builder.build import (
+from canon import CHAPTER_COUNT
+from catalog import CatalogError
+from render import (
     RESOURCES,
     PublishedState,
     catalog_checksum,
@@ -16,9 +18,7 @@ from bookmark_builder.build import (
     stale_paths,
     write_tree,
 )
-from bookmark_builder.canon import CHAPTER_COUNT
-from bookmark_builder.model import CatalogError
-from bookmark_builder.sources import load_catalog, render_sources, save_catalog
+from sources import load_catalog, render_sources, save_catalog
 from tests.helpers import sample_catalog
 
 REPOSITORY_ROOT = Path(__file__).resolve().parent.parent

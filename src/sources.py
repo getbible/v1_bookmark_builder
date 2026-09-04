@@ -21,9 +21,7 @@ from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
 
-from . import SCHEMA_VERSION
-from .jsonfmt import dump_bytes
-from .model import (
+from catalog import (
     Catalog,
     CatalogError,
     Locale,
@@ -38,6 +36,8 @@ from .model import (
     topic_id,
     translated_name,
 )
+from jsonfmt import dump_bytes
+from meta import SCHEMA_VERSION
 
 TOPICS_FILE = "topics.json"
 LINKS_DIR = "links"
