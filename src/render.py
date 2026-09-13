@@ -1,8 +1,8 @@
 """Render the static JSON API tree from a validated catalogue.
 
-Every document is a pure function of the sources: the same ``data/`` always
-produces the same bytes, so a rebuild without a data change is a no-op for the
-downstream repository and nginx can serve the files with plain ETags.
+Every content document is a pure function of the sources. With the same
+schemas and builder code, an identical rebuild is a no-op for the downstream
+repository and nginx can serve the files with plain ETags.
 
 ``all.json`` is the reference document. It holds the complete content (every
 topic with its verses, every locale) and nothing else, and its SHA-256 is the
@@ -28,6 +28,7 @@ from canon import BOOK_CHAPTER_COUNTS, BOOK_COUNT
 from catalog import ENGLISH_LOCALE, Catalog, CatalogError, Topic
 from jsonfmt import dump_bytes
 from meta import SCHEMA_VERSION
+from openapi import build_openapi
 
 API_VERSION = "v1"
 RESOURCES: Mapping[str, str] = {
@@ -41,6 +42,7 @@ RESOURCES: Mapping[str, str] = {
     "locales": "locales.json",
     "locale": "locales/{locale}.json",
     "checksums": "checksums.json",
+    "openapi": "openapi.json",
 }
 MAX_CATALOG_VERSION = 2**53
 
@@ -216,6 +218,9 @@ def render_api(catalog: Catalog, *, previous: PublishedState | None = None) -> d
             "resources": dict(RESOURCES),
             "locales": locale_codes,
         }
+    )
+    files[RESOURCES["openapi"]] = dump_bytes(
+        build_openapi(RESOURCES, files, api_version=API_VERSION)
     )
     files[RESOURCES["checksums"]] = dump_bytes(
         {
