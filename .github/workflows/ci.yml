@@ -68,3 +68,5 @@ jobs:
           ./run.sh --target="$RUNNER_TEMP/downstream" --dry-run
           test -f "$RUNNER_TEMP/downstream/v1/index.json"
           python3 -m json.tool "$RUNNER_TEMP/downstream/v1/index.json"
+          test -f "$RUNNER_TEMP/downstream/v1/openapi.json"
+          python3 -m json.tool "$RUNNER_TEMP/downstream/v1/openapi.json" > /dev/null

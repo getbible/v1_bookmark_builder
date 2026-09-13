@@ -38,15 +38,26 @@ class CliTests(unittest.TestCase):
             self.assertIn("catalogue version 1", out)
             index = json.loads((output / "index.json").read_text())
             self.assertEqual(index["catalog_version"], 1)
+            self.assertEqual(index["resources"]["openapi"], "openapi.json")
+            specification = output / "openapi.json"
+            self.assertEqual(json.loads(specification.read_text())["openapi"], "3.1.1")
             code, out, _ = self.run_cli(
                 "--data", str(data), "build", "--output", str(output), "--check"
             )
             self.assertEqual(code, 0)
             self.assertIn("Up to date", out)
+            # A missing specification is stale even when catalogue content is unchanged.
+            specification.unlink()
+            code, out, _ = self.run_cli(
+                "--data", str(data), "build", "--output", str(output), "--check"
+            )
+            self.assertEqual(code, 1)
+            self.assertIn("openapi.json", out)
             # Rebuilding unchanged content keeps the version.
             code, out, _ = self.run_cli("--data", str(data), "build", "--output", str(output))
             self.assertIn("catalogue version 1", out)
             self.assertIn("content unchanged", out)
+            self.assertTrue(specification.is_file())
 
             bundle = repo / "bundle.json"
             bundle.write_text(

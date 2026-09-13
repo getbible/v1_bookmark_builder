@@ -107,7 +107,7 @@ class BuildTests(unittest.TestCase):
         files = render_api(catalog)
         self.assertEqual(files, render_api(sample_catalog()))
         # 66 book files + every canonical chapter + top-level documents + topics + locales.
-        expected = 66 + CHAPTER_COUNT + 6 + 2 + 3
+        expected = 66 + CHAPTER_COUNT + 7 + 2 + 3
         self.assertEqual(len(files), expected)
         index = json.loads(files["index.json"])
         self.assertEqual(index["catalog_version"], 1)
