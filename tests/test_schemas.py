@@ -69,6 +69,8 @@ class SchemaTests(unittest.TestCase):
         for source in (catalog, load_catalog(REPOSITORY_ROOT / "data")):
             files = render_api(source)
             for relative, content in files.items():
+                if relative == "openapi.json":
+                    continue  # The OpenAPI document is validated in test_openapi.py.
                 if relative == "index.json":
                     schema = "api/index.schema.json"
                 elif relative == "catalog.json":
