@@ -112,7 +112,8 @@ Steps:
 2. Clone the downstream repository (shallow) or, with `--pull`, fetch and
    reset the checkout to the remote branch, discarding whatever a previous dry
    run left behind.
-3. `python3 src/builder.py build --output <target>/v1`. The previously
+3. `python3 src/builder.py build --output <target>/v1`, including the
+   generated OpenAPI description at `v1/openapi.json`. The previously
    published `index.json` supplies the last version and checksum.
 4. Stage `v1/`. When the rendered files are byte-identical to what is
    published, print `Nothing to commit` and stop.
@@ -126,12 +127,17 @@ Only `v1/` is touched. The downstream README and license are never rewritten.
 | Situation | `catalog_version` in the new `index.json` |
 |---|---|
 | No published `index.json` | 1 |
-| Same checksum as published | unchanged, and no commit is made |
+| Same checksum as published | unchanged; a commit is made if other rendered files changed |
 | Different checksum | previous + 1 |
 | `index.json` present but unreadable or invalid | the build fails |
 
 The checksum is the SHA-256 of `v1/all.json`. See
 [ARCHITECTURE.md](ARCHITECTURE.md#versioning-and-checksums).
+
+A change to the generated OpenAPI description is published even when the
+catalogue content is unchanged. In that case `catalog_version` stays the
+same, while `openapi.json` and its entry in `checksums.json` change. A
+rebuild with no differences anywhere in `v1/` creates no commit.
 
 ## Running it yourself
 
@@ -165,7 +171,7 @@ it reached, so an SSH error means the GPG secrets were already accepted.
 | `Permission denied (publickey)` or `ERROR: Repository not found` while cloning | The SSH key is not registered as a deploy key on the downstream repository, or has no write access | Add `GETBIBLE_SSH_PUB` as a deploy key with write access on `getbible/bookmarks` |
 | `error: <file>.<field> <rule>` before anything is cloned, for example `error: links/grace.json.verses must be strictly ascending without duplicates.` | The sources violate a rule | Fix the file; the message names the file and the rule ([DATA.md](DATA.md)) |
 | `refusing to reset the published version` | The downstream `v1/index.json` exists but is damaged | Restore it from the downstream history, then re-run |
-| The run succeeds but prints `Nothing to commit` | The content did not change | Expected; only content changes are published |
+| The run succeeds but prints `Nothing to commit` | Every generated file is unchanged | Expected; publication compares the whole rendered tree, including `openapi.json` |
 | `! [rejected]` on push | Someone pushed to the downstream branch during the run | Re-run the workflow; `--pull` resets the checkout first |
 
 ## Serving
@@ -175,3 +181,10 @@ The documents are plain JSON with stable paths, so a plain nginx `root` with
 `gzip` and long cache headers is enough; the downstream README describes
 every file. Updating the server is a `git pull` of the downstream
 repository, on a timer or from a webhook on its `push` event.
+
+Serve `openapi.json` from that same directory along with the other JSON
+files. Consumers can discover it through `index.json.resources.openapi`.
+Its relative server URL (`./`) resolves to the directory containing the
+specification; no production hostname is hardcoded. See
+[OPENAPI.md](OPENAPI.md) for importing a downloaded copy and selecting the
+API base URL in a local editor or client.

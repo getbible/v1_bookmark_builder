@@ -50,7 +50,7 @@ formatting.
 
 ## `build`
 
-Renders the complete API tree:
+Renders the complete API tree, including `openapi.json`:
 
 ```bash
 python3 src/builder.py build --output v1
@@ -61,15 +61,19 @@ python3 src/builder.py build --output v1
 | `--output DIR` | Directory to create or replace (default `./v1`). If it already holds an `index.json`, that file supplies the previously published version and checksum |
 | `--check` | Do not write; report whether `--output` already matches a fresh build (exit `1` and list the stale paths when it does not) |
 
-Output:
-
-```text
-Generated 1376 files into v1 (catalogue version 2, checksum 8e5ac246…, content changed).
-```
+The command reports the number of generated files, output directory,
+catalogue version, checksum and whether the catalogue content changed.
 
 `content unchanged` means the checksum equals the published one and the
-version was kept. The tree is written beside the target and swapped in
-atomically, so a failed build never leaves a half-written directory.
+version was kept. The generated OpenAPI description can still change, and
+`--check` reports a missing or stale `openapi.json` like any other output.
+The tree is written beside the target and swapped in atomically, so a
+failed build never leaves a half-written directory.
+
+No separate command or option is needed to generate the specification.
+`index.json` advertises it as `resources.openapi`, and `checksums.json`
+includes its SHA-256. See [OPENAPI.md](OPENAPI.md) for importing it into an
+API client or documentation viewer.
 
 ## `import-bundle`
 

@@ -11,6 +11,11 @@ published to [`getbible/bookmarks`](https://github.com/getbible/bookmarks)
 and served from there as files, the same way the other getBible API
 repositories work.
 
+Every build also generates `v1/openapi.json`, an OpenAPI 3.1.1 description
+of all published endpoints, their response schemas and examples. Import
+that file into an OpenAPI-compatible API client or documentation viewer;
+see [docs/OPENAPI.md](docs/OPENAPI.md) for the endpoint reference and usage.
+
 There is no runtime and no server of its own. GitHub is the editing surface:
 a person opens a pull request, or an application such as the getBible robot
 or the getBible app writes a file through the GitHub API. Every push to the
@@ -73,6 +78,7 @@ data/topics.json, data/links/*.json, data/locales/*.json
 | [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) | Contribute as a person (branch and pull request) or integrate an application (direct writes and pull requests through the GitHub API, with worked examples) |
 | [docs/PUBLISHING.md](docs/PUBLISHING.md) | Set up or debug publication: every secret and environment variable with example values and defaults, what `run.sh` does, troubleshooting |
 | [docs/CLI.md](docs/CLI.md) | Use the command line: `validate`, `normalize`, `build`, `import-bundle` |
+| [docs/OPENAPI.md](docs/OPENAPI.md) | Discover the published GET endpoints, import the generated OpenAPI file and understand response examples, locale fallback and checksums |
 
 The structure of the published files is described in the README of
 `getbible/bookmarks`, next to the files themselves.
@@ -86,7 +92,7 @@ standard library.
 git clone https://github.com/getbible/v1_bookmark_builder.git
 cd v1_bookmark_builder
 python3 src/builder.py validate            # OK: 61 topics, 2155 verse links, 53 locales.
-python3 src/builder.py build --output v1   # renders 1,376 files; v1/ is ignored by git here
+python3 src/builder.py build --output v1   # includes v1/openapi.json; v1/ is ignored by git here
 ```
 
 To run everything CI runs:
@@ -114,7 +120,9 @@ getBible git identity with [`octoleo/git-user`](https://github.com/octoleo/git-u
 clones `getbible/bookmarks`, renders `v1/` in place and pushes a commit only
 when the rendered files differ from what is already published. The
 catalogue version in `index.json` increments automatically whenever the
-content checksum changes.
+content checksum changes. Changes to the generated OpenAPI description are
+published even when that content checksum and catalogue version stay the
+same.
 
 The workflow needs the shared getBible secrets on this repository:
 

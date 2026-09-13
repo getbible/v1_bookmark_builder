@@ -12,7 +12,7 @@ select = ["E", "F", "W", "I", "B", "UP", "S", "N", "RUF", "SIM", "PL"]
 ignore = ["PLR0913", "PLR0912", "PLR0915", "PLR2004", "S101", "S603", "S607", "RUF012", "E501", "SIM108", "PLR0911", "PLW2901", "PLR1714"]
 
 [tool.ruff.lint.isort]
-known-first-party = ["builder", "bundle", "canon", "catalog", "jsonfmt", "meta", "render", "sources"]
+known-first-party = ["builder", "bundle", "canon", "catalog", "jsonfmt", "meta", "openapi", "render", "sources"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["S", "PL", "B", "RUF"]
